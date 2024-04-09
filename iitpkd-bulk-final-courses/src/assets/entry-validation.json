@@ -1,0 +1,55 @@
+    {
+    "columns": ["Course Code", "Course Title", "Category", "Credits", "Target Discipline", "Target Program", "Prerequisites", "Date of Proposal", "Date of Approval", "Proposing Faculty"],
+    "Course Code": {
+        "type": "string",
+        "required": true,
+        "regex": "^[A-Z]{2}\\d{4}$",
+        "error": "Required Format - (Eg:-CS2013)"
+    },
+    "Course Title": {
+        "type": "string",
+        "required": true
+    },
+    "Category": {
+        "type": "string",
+        "required": true,
+        "regex": "^[A-Z]+$",
+        "error": "Only capital letters are allowed"
+    },
+    "Credits": {
+        "type": "string",
+        "required": true,
+        "regex": "^[0-9]+-[0-9]+-[0-9]+-[0-9]+$",
+        "error": "Required Format - (Eg:- 1-0-0-3)"
+    },
+    "Target Discipline": {
+        "type": "string",
+        "required": true,
+        "regex": "^[A-Z]+$",
+        "error": "Only capital letters are allowed"
+    },
+    "Target Program": {
+        "type": "list",
+        "list" : ["UG", "PG"],
+        "error": "Value must be 'UG' or 'PG'",
+        "required": true
+    },
+    "Prerequisites": {
+        "type": "string",
+        "required": true
+    },
+    "Date of Proposal": {
+        "type": "date",
+        "format": "DD/MM/YYYY",
+        "required": true
+    },
+    "Date of Approval": {
+        "type": "date",
+        "format": "DD/MM/YYYY",
+        "required": true
+    },
+    "Proposing Faculty": {
+        "type": "string",
+        "required": true
+    }
+}

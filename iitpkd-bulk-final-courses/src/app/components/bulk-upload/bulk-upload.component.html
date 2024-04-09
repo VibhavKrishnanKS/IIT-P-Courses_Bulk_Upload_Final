@@ -1,0 +1,93 @@
+<section class="card">
+    <div class="d-flex text-center btn-group">
+        <button class="w-100 btn {{currentStep === 1 ? 'btn-primary' : 'btn-light'}}" (click)="setCurrentStep(1)">Upload</button>
+        <button class="w-100 btn {{currentStep === 2 ? 'btn-primary' : 'btn-light'}}" (click)="setCurrentStep(2)" [disabled]="uploadedData.length === 0">Preview &amp; Edit</button>
+        <button class="w-100 btn {{currentStep === 3 ? 'btn-primary' : 'btn-light'}}" (click)="setCurrentStep(3)" [disabled]="uploadedData.length === 0">Export</button>
+    </div>
+    @if (currentStep === 1) {
+        <div class="p-2 d-flex flex-column align-items-center w-100 gap-4">
+            <span class="text-info-emphasis">Download the Latest Template: 
+                <a href="{{TEMPLATE_SPREADSHEET_URL}}"><button class="btn btn-outline-primary">
+                    <i class="fa-regular fa-file-excel"></i>
+                    xlsx</button></a>
+                 | 
+                <a href="{{TEMPLATE_CSV_URL}}"><button class="btn btn-outline-primary">
+                    <i class="fa-solid fa-file-csv"></i>
+                    csv</button></a></span>
+            @if (uploadedData.length > 0) {
+                <div class="d-flex align-items-center gap-4 w-100"><span class="text-info-emphasis">Uploaded {{uploadedData.length}} entries.</span><span class="badge bg-primary rounded-pill" placement="top" ngbTooltip="Upload entries with id to replace the uploaded data.">?</span></div>
+            } @else {
+                <span class="w-100 text-info-emphasis">No entries uploaded yet.</span>
+            }
+            <div class="position-relative w-100 ratio ratio-21x9 border-1 border"><app-upload-file [onFileUpload]="onFileUpload"></app-upload-file></div>
+            <div class="w-25 btn-group ms-auto"><button class="btn btn-light" [disabled]="uploadedData.length === 0" (click)="uploadedData = []">Reset data</button><button class="btn btn-primary" [disabled]="uploadedData.length === 0" (click)="setCurrentStep(2)">Next</button></div>
+        </div>
+    } @else if (currentStep === 2) {
+        <div class="p-2 w-100 d-flex flex-column gap-4">
+            <div class="overflow-x-auto"><app-preview-table [uploadedData]="uploadedData" [columns]="columns" [revalidateEntry]="revalidateEntry"></app-preview-table></div>
+            <div class="d-flex align-items-center justify-content-between">
+                @if (uploadedDataHasNoErrors()) {
+                    <div class="w-25 ms-auto btn-group">
+                        <button class="btn btn-primary" (click)="setCurrentStep(3)">Next</button>
+                    </div>
+                } @else {
+                    <div ngbDropdown class="d-inline-block w-100">
+                        <button type="button" class="btn btn-outline-primary" id="download-errors" ngbDropdownToggle>
+                            Download Erroneous Data
+                        </button>
+                        <div ngbDropdownMenu aria-labelledby="download-errors">
+                            <button ngbDropdownItem (click)="getErrorEntrySheet('xlsx')"><i class="fa-regular fa-file-excel"></i>
+                                as .xlsx</button>
+                            <button ngbDropdownItem (click)="getErrorEntrySheet('csv')"> <i class="fa-solid fa-file-csv"></i>
+                                as .csv</button>
+                        </div>
+                    </div>
+                    <div class="w-100 btn-group">
+                        <button class="btn btn-light" (click)="setCurrentStep(1)" [disabled]="uploadedDataHasNoErrors()">&lt; Upload Corrected Entries</button>
+                        <button class="btn btn-primary" (click)="setCurrentStep(3)">Next</button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (showToast) {
+            <ngb-toast header="Errors" (hidden)="showToast = false" class="fixed-top m-auto" style="top: 5rem">
+              Validation complete. {{getTotalErrors()}} errors found in data.
+            </ngb-toast>
+          }
+    } @else if (currentStep === 3) {
+        <div class="p-2 d-flex flex-column align-items-center w-100 gap-4">
+            <div class="container d-flex flex-column gap-5">
+                <span>
+                    Export all validated entries.
+                </span>
+                <span class="text-info">
+                    @if (uploadedData.length === getExportData().length) {
+                        All entries can be exported!
+                    } @else {
+                        Some entries have errors. {{getExportData().length}} / {{uploadedData.length}} entries can be exported.
+                    }
+                </span>
+                <div class="btn-group ms-auto w-25">
+                    <button class="btn btn-light" (click)="setCurrentStep(2)">&lt; Back</button>
+                    <button class="btn btn-primary" (click)="exportData(getExportData())" [disabled]="isExporting">Export</button>
+                </div>
+            </div>
+        </div>
+    } @else if (currentStep === 4) {
+        <div class="p-2 d-flex flex-column align-items-center w-100 gap-4">
+            <div class="d-flex w-100 flex-column justify-content-center align-items-center p-3 border-1 border gap-4">
+                <ngb-progressbar [value]="exportProgress" type="success" class="w-100"></ngb-progressbar>
+                @if (isExporting) {
+                    <span class="text-primary-emphasis">Exporting...</span>
+                } @else {
+                    <i class="fa-solid fa-circle-check fa-9x" alt="success"></i>
+                    <span class="text-success-emphasis">Export successful!</span>
+                }
+            </div>
+            @if (!isExporting) {
+                <div class="w-25 btn-group ms-auto"><button class="btn btn-primary" (click)="setCurrentStep(1)">Upload More Entries</button></div>
+            }
+        </div>
+    }
+</section>
